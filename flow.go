@@ -5,6 +5,8 @@ type FlowDefinition struct {
 	handlers []Handler
 }
 
+type Handler func(subject interface{})
+
 // NewFlow returns a new FlowDefinition.
 func NewFlow() *FlowDefinition {
 	return &FlowDefinition{

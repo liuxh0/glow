@@ -33,9 +33,11 @@ var _ = Describe("FlowDefinition", func() {
 		})
 
 		When("calling Run() after it", func() {
-			var handlerCalled = false
+			var handlerCalled bool
 
 			BeforeEach(func() {
+				handlerCalled = false
+
 				handler := func(_ interface{}) {
 					handlerCalled = true
 				}
