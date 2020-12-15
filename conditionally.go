@@ -2,10 +2,10 @@ package glow
 
 type ConditionallyDefinition struct {
 	flow    *FlowDefinition
-	handler Handler
+	handler HandlerFunc
 }
 
-func (flow *FlowDefinition) Conditionally(handler Handler) *ConditionallyDefinition {
+func (flow *FlowDefinition) Conditionally(handler HandlerFunc) *ConditionallyDefinition {
 	return &ConditionallyDefinition{flow, handler}
 }
 
@@ -13,7 +13,12 @@ func (conditionally *ConditionallyDefinition) If(condition bool) *FlowDefinition
 	flow := conditionally.flow
 
 	if condition {
-		flow.handlers = append(flow.handlers, conditionally.handler)
+		wrappedHandler := func(subject interface{}) bool {
+			conditionally.handler(subject)
+			return true
+		}
+
+		flow.handlers = append(flow.handlers, wrappedHandler)
 	}
 
 	return flow
@@ -32,10 +37,12 @@ func (conditionally *ConditionallyDefinition) IfFuncReturnsFalse(condition func(
 }
 
 func (conditionally *ConditionallyDefinition) ifFunc(f func(subject interface{}) bool, condition bool) *FlowDefinition {
-	wrappedHandler := func(subject interface{}) {
+	wrappedHandler := func(subject interface{}) bool {
 		if f(subject) == condition {
 			conditionally.handler(subject)
 		}
+
+		return true
 	}
 
 	flow := conditionally.flow

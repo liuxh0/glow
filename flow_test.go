@@ -32,7 +32,7 @@ var _ = Describe("FlowDefinition", func() {
 			Expect(flow.Do(nil)).To(Equal(flow))
 		})
 
-		When("calling Run() after it", func() {
+		Context("calling Run() after it", func() {
 			var handlerCalled bool
 
 			BeforeEach(func() {
@@ -47,6 +47,78 @@ var _ = Describe("FlowDefinition", func() {
 
 			Specify("the handler is called", func() {
 				Expect(handlerCalled).To(BeTrue())
+			})
+		})
+	})
+
+	Describe("Filter()", func() {
+		var (
+			filterFuncReturn bool
+			filterFuncCalled bool
+		)
+
+		BeforeEach(func() {
+			filterFuncReturn = false
+			filterFuncCalled = false
+		})
+
+		JustBeforeEach(func() {
+			filterFunc := func(_ interface{}) bool {
+				filterFuncCalled = true
+				return filterFuncReturn
+			}
+
+			flow.Filter(filterFunc)
+		})
+
+		It("returns the receiver pointer", func() {
+			Expect(flow.Filter(nil)).To(Equal(flow))
+		})
+
+		It("does not call filter function", func() {
+			Expect(filterFuncCalled).To(BeFalse())
+		})
+
+		Context("registering a handler after it and then calling Run()", func() {
+			var (
+				handlerFuncCalled bool
+			)
+
+			BeforeEach(func() {
+				handlerFuncCalled = false
+			})
+
+			JustBeforeEach(func() {
+				handlerFunc := func(_ interface{}) {
+					handlerFuncCalled = true
+				}
+
+				flow.Do(handlerFunc)
+				flow.Run(nil)
+			})
+
+			Specify("the filter function is called", func() {
+				Expect(filterFuncCalled).To(BeTrue())
+			})
+
+			When("the filter function returns true", func() {
+				BeforeEach(func() {
+					filterFuncReturn = true
+				})
+
+				Specify("the following handler function is called", func() {
+					Expect(handlerFuncCalled).To(BeTrue())
+				})
+			})
+
+			When("the filter function returns false", func() {
+				BeforeEach(func() {
+					filterFuncReturn = false
+				})
+
+				Specify("the following handler function is not called", func() {
+					Expect(handlerFuncCalled).To(BeFalse())
+				})
 			})
 		})
 	})
