@@ -13,9 +13,8 @@ func (conditionally *ConditionallyDefinition) If(condition bool) *FlowDefinition
 	flow := conditionally.flow
 
 	if condition {
-		wrappedHandler := func(subject interface{}) bool {
-			conditionally.handler(subject)
-			return true
+		wrappedHandler := func(subject interface{}) []interface{} {
+			return []interface{}{conditionally.handler(subject)}
 		}
 
 		flow.handlers = append(flow.handlers, wrappedHandler)
@@ -37,12 +36,12 @@ func (conditionally *ConditionallyDefinition) IfFuncReturnsFalse(condition func(
 }
 
 func (conditionally *ConditionallyDefinition) ifFunc(f func(subject interface{}) bool, condition bool) *FlowDefinition {
-	wrappedHandler := func(subject interface{}) bool {
+	wrappedHandler := func(subject interface{}) []interface{} {
 		if f(subject) == condition {
-			conditionally.handler(subject)
+			return []interface{}{conditionally.handler(subject)}
 		}
 
-		return true
+		return nil
 	}
 
 	flow := conditionally.flow

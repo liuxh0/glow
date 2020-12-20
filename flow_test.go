@@ -38,8 +38,9 @@ var _ = Describe("FlowDefinition", func() {
 			BeforeEach(func() {
 				handlerCalled = false
 
-				handler := func(_ interface{}) {
+				handler := func(subject interface{}) interface{} {
 					handlerCalled = true
+					return subject
 				}
 
 				flow.Do(handler).Run(nil)
@@ -89,8 +90,9 @@ var _ = Describe("FlowDefinition", func() {
 			})
 
 			JustBeforeEach(func() {
-				handlerFunc := func(_ interface{}) {
+				handlerFunc := func(subject interface{}) interface{} {
 					handlerFuncCalled = true
+					return subject
 				}
 
 				flow.Do(handlerFunc)
@@ -145,8 +147,9 @@ var _ = Describe("FlowDefinition", func() {
 
 				for i := 0; i < handlerNum; i++ {
 					index := i
-					handler := func(_ interface{}) {
+					handler := func(subject interface{}) interface{} {
 						handlerOutput = append(handlerOutput, fmt.Sprintf(outputFormat, index))
+						return subject
 					}
 
 					flow.Do(handler)

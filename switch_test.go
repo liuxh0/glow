@@ -34,15 +34,17 @@ var _ = Describe("FlowDefinition", func() {
 
 			for _, v := range handlers {
 				handlerName := v
-				handlerFunc := func(_ interface{}) {
+				handlerFunc := func(subject interface{}) interface{} {
 					handlerFuncCalled = append(handlerFuncCalled, handlerName)
+					return subject
 				}
 
 				handlerMap[v] = handlerFunc
 			}
 
-			defaultHandler := func(_ interface{}) {
+			defaultHandler := func(subject interface{}) interface{} {
 				defaultHandlerCalled = true
+				return subject
 			}
 			handlerMap["_default"] = defaultHandler
 		})

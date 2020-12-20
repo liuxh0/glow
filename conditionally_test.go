@@ -35,7 +35,10 @@ var _ = Describe("ConditionallyDefinition", func() {
 
 	BeforeEach(func() {
 		handlerCalled = false
-		handler := func(_ interface{}) { handlerCalled = true }
+		handler := func(subject interface{}) interface{} {
+			handlerCalled = true
+			return subject
+		}
 
 		flow = glow.NewFlow()
 		conditionally = flow.Conditionally(handler)
